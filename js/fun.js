@@ -8,7 +8,7 @@
 	console.log ("testing env");
 	//console.log ("token: " + config.TOKEN_GITHUB_DOT_COM);
 
-	let gitURL = "https://api.github.com/repos/jpngfile/mySite/stats/commit_activity";
+	let gitURL = "https://api.github.com/repos/jpngfile/MoodJournal/stats/commit_activity";
 	function callAjax (url, callback) {
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.onreadystatechange = function() {
@@ -185,7 +185,7 @@
 				//console.log ("SUccess")
 				let data = xmlhttp.responseText;
 				var commits = JSON.parse(data);
-				//console.log (commits);
+				console.log (commits);
 				let commitTotals = commits.map (function (week) {return week.total})
 				//console.log (commitTotals)
 				board.updateRectangles (commitTotals);
