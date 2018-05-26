@@ -195,6 +195,28 @@
 				console.log ("Can't handle status: " + xmlhttp.status)
 			}
 		});
+        let gitBaseURL = "https://api.github.com/";
+        document.getElementById("user-form").onsubmit = function(e){
+            var username = document.getElementById("username").value;
+            console.log(username);
+            var repoURL = gitBaseURL + "users/" + username + "/repos";
+            callAjax(repoURL, function(xmlhttp) {
+			    if (xmlhttp.status === 200){
+			    	console.log ("SUccess")
+			    	let data = xmlhttp.responseText;
+
+			    	//console.log ("data: " + data);
+			    	var commits = JSON.parse(data);
+			    	console.log (commits);
+			    } else if (xmlhttp.status === 202) {
+                    console.log("202 status");
+			    } else {
+			    	console.log ("Can't handle status: " + xmlhttp.status)
+			    }
+            });
+                   
+            e.preventDefault();
+        }
 
 		console.log ("init header")
 	}
