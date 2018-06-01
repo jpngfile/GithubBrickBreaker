@@ -162,6 +162,16 @@
 		board.paddle.setVel (new Vector (velX, board.paddle.vel.y));
 	}
 
+    function updateRepoList(repos){
+        var repoList = document.getElementById('repo-list');
+        repoList.innerHTML = ""
+        for (var i = 0; i < repos.length; i++){
+            var repoItem = document.createElement("p");
+            repoItem.innerHTML = repos[i].name;
+            repoList.appendChild(repoItem)
+        }
+    }
+
 	//Note: remember to resize everything when the display size changes
 	function init(){
 		
@@ -207,6 +217,7 @@
 
 			    	//console.log ("data: " + data);
 			    	var commits = JSON.parse(data);
+                    updateRepoList(commits)
 			    	console.log (commits);
 			    } else if (xmlhttp.status === 202) {
                     console.log("202 status");
