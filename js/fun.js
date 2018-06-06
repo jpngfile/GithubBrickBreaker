@@ -8,6 +8,7 @@
 	console.log ("testing env");
 	//console.log ("token: " + config.TOKEN_GITHUB_DOT_COM);
 
+    let gitBaseURL = "https://api.github.com/";
 	let gitURL = "https://api.github.com/repos/jpngfile/MoodJournal/stats/commit_activity";
 	function callAjax (url, callback) {
 		var xmlhttp = new XMLHttpRequest();
@@ -162,14 +163,39 @@
 		board.paddle.setVel (new Vector (velX, board.paddle.vel.y));
 	}
 
-    function updateRepoList(repos){
+    function updateRepoList(repos, username){
         var repoList = document.getElementById('repo-list');
         repoList.innerHTML = ""
         for (var i = 0; i < repos.length; i++){
-            var repoItem = document.createElement("p");
+            var repoItem = document.createElement("button");
+            repoItem.classList.add('pure-button');
+            let repoName = repos[i].name;
             repoItem.innerHTML = repos[i].name;
+            repoItem.onclick = function() { loadRepo(username, repoName) };
             repoList.appendChild(repoItem)
         }
+    }
+
+    function loadRepo(username, repoName){
+        var repoURL = gitBaseURL + "repos/" + username + "/" + repoName + "/stats/commit_activity";
+        console.log(username)
+		callAjax (repoURL, function updateBoard (xmlhttp) {
+			if (xmlhttp.status === 200){
+				//console.log ("data: " + data);
+				//console.log ("SUccess")
+				var data = xmlhttp.responseText;
+				var commits = JSON.parse(data);
+                console.log(repoURL)
+				console.log (commits);
+				var commitTotals = commits.map (function (week) {return week.total})
+				//console.log (commitTotals)
+				board.updateRectangles (commitTotals);
+			} else if (xmlhttp.status === 202) {
+				setTimeout (callAjax (repoURL, updateBoard), 1000);
+			} else {
+				console.log ("Can't handle status: " + xmlhttp.status)
+			}
+		});
     }
 
 	//Note: remember to resize everything when the display size changes
@@ -189,23 +215,8 @@
 		var height = ctx.canvas.height;
 
 		board = new Board (width, height);
-		callAjax (gitURL, function updateBoard (xmlhttp) {
-			if (xmlhttp.status === 200){
-				//console.log ("data: " + data);
-				//console.log ("SUccess")
-				let data = xmlhttp.responseText;
-				var commits = JSON.parse(data);
-				console.log (commits);
-				let commitTotals = commits.map (function (week) {return week.total})
-				//console.log (commitTotals)
-				board.updateRectangles (commitTotals);
-			} else if (xmlhttp.status === 202) {
-				setTimeout (callAjax (gitURL, updateBoard), 1000);
-			} else {
-				console.log ("Can't handle status: " + xmlhttp.status)
-			}
-		});
-        let gitBaseURL = "https://api.github.com/";
+        loadRepo("jpngfile", "MoodJournal")
+
         document.getElementById("user-form").onsubmit = function(e){
             var username = document.getElementById("username").value;
             console.log(username);
@@ -216,9 +227,9 @@
 			    	let data = xmlhttp.responseText;
 
 			    	//console.log ("data: " + data);
-			    	var commits = JSON.parse(data);
-                    updateRepoList(commits)
-			    	console.log (commits);
+			    	var repos = JSON.parse(data);
+                    updateRepoList(repos, username)
+			    	console.log (repos);
 			    } else if (xmlhttp.status === 202) {
                     console.log("202 status");
 			    } else {
